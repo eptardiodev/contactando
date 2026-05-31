@@ -1,0 +1,28 @@
+# Ejecutar: dart run flutter_flavorizr
+# Esto genera la configuración nativa en Android e iOS
+
+app:
+  android:
+    flavorDimensions: "flavor-type"
+  ios: {}
+
+flavors:
+  dev:
+    app:
+      name: "Contactando DEV"
+    android:
+      applicationId: "com.contactando.app.dev"
+      icon: "assets/icons/launcher_dev.png"
+    ios:
+      bundleId: "com.contactando.app.dev"
+      icon: "assets/icons/launcher_dev.png"
+
+  prod:
+    app:
+      name: "Contactando"
+    android:
+      applicationId: "com.contactando.app"
+      icon: "assets/icons/launcher.png"
+    ios:
+      bundleId: "com.contactando.app"
+      icon: "assets/icons/launcher.png"

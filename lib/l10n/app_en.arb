@@ -1,0 +1,21 @@
+{
+  "@@locale": "en",
+  "appTitle": "Contactando",
+  "loginTitle": "Welcome",
+  "loginSubtitle": "Sign in to your account",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "loginButton": "Sign in",
+  "forgotPassword": "Forgot password?",
+  "noAccount": "Don't have an account?",
+  "register": "Sign up",
+  "dashboard": "Dashboard",
+  "contacts": "Contacts",
+  "transactions": "Transactions",
+  "settings": "Settings",
+  "profile": "My profile",
+  "logout": "Sign out",
+  "errorGeneric": "An unexpected error occurred",
+  "errorNoInternet": "No internet connection",
+  "errorInvalidCredentials": "Invalid credentials"
+}

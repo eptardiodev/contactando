@@ -1,0 +1,21 @@
+{
+  "@@locale": "es",
+  "appTitle": "Contactando",
+  "loginTitle": "Bienvenido",
+  "loginSubtitle": "Ingresa a tu cuenta",
+  "emailLabel": "Correo electrónico",
+  "passwordLabel": "Contraseña",
+  "loginButton": "Iniciar sesión",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "noAccount": "¿No tienes cuenta?",
+  "register": "Regístrate",
+  "dashboard": "Dashboard",
+  "contacts": "Contactos",
+  "transactions": "Transacciones",
+  "settings": "Ajustes",
+  "profile": "Mi perfil",
+  "logout": "Cerrar sesión",
+  "errorGeneric": "Ocurrió un error inesperado",
+  "errorNoInternet": "Sin conexión a internet",
+  "errorInvalidCredentials": "Credenciales inválidas"
+}
