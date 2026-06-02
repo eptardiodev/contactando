@@ -1,5 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../../core/constants/remote_constants.dart';
 import '../models/contact_model.dart';
 
 abstract interface class ContactRemoteDatasource {
@@ -14,41 +16,54 @@ abstract interface class ContactRemoteDatasource {
 class SupabaseContactDatasource implements ContactRemoteDatasource {
   SupabaseContactDatasource(this._supabase);
   final SupabaseClient _supabase;
-  static const _table = 'contacts';
 
   @override
   Future<List<ContactModel>> getContacts(String userId) async {
     final data = await _supabase
-      .from(_table)
-      .select()
-      .eq("ownerUserId", userId)
-      .eq("isContactRole", false)
-      .eq("active", true)
-      .maybeSingle();
+        .from(RC.tableContact)
+        .select()
+        .eq(RC.contactOwnerUserId, userId)
+        .eq(RC.active, true);
 
-    return (data as List).map((e) => ContactModel.fromJson(e as Map<String, dynamic>)).toList();
+    return data.map((e) => ContactModel.fromJson(e)).toList();
   }
 
   @override
   Future<ContactModel> getContactById(String id) async {
-    final data = await _supabase.from(_table).select().eq('id', id).single();
+    final data = await _supabase
+        .from(RC.tableContact)
+        .select()
+        .eq(RC.id, id)
+        .single();
     return ContactModel.fromJson(data);
   }
 
   @override
   Future<ContactModel> createContact(ContactModel contact) async {
-    final data = await _supabase.from(_table).insert(contact.toJson()).select().single();
+    final data = await _supabase
+        .from(RC.tableContact)
+        .insert(contact.toJson())
+        .select()
+        .single();
     return ContactModel.fromJson(data);
   }
 
   @override
   Future<ContactModel> updateContact(ContactModel contact) async {
-    final data = await _supabase.from(_table).update(contact.toJson()).eq('id', contact.id).select().single();
+    final data = await _supabase
+        .from(RC.tableContact)
+        .update(contact.toJson())
+        .eq(RC.id, contact.id)
+        .select()
+        .single();
     return ContactModel.fromJson(data);
   }
 
   @override
   Future<void> deleteContact(String id) async {
-    await _supabase.from(_table).delete().eq('id', id);
+    await _supabase
+        .from(RC.tableContact)
+        .delete()
+        .eq(RC.id, id);
   }
 }

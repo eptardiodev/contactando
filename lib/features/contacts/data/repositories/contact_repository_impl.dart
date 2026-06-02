@@ -34,7 +34,7 @@ class ContactRepositoryImpl implements ContactRepository {
   Future<Either<Failure, ContactEntity>> createContact(ContactEntity contact) async {
     try {
       final model = ContactModel(id: contact.id, name: contact.name, email: contact.email,
-        phone: contact.phone, company: contact.company, avatarUrl: contact.avatarUrl, createdAt: contact.createdAt);
+        phone: contact.phone, createdAt: contact.createdAt);
       return right((await _datasource.createContact(model)).toEntity());
     } on Exception catch (e) {
       return left(ServerFailure(e.toString()));
@@ -45,7 +45,7 @@ class ContactRepositoryImpl implements ContactRepository {
   Future<Either<Failure, ContactEntity>> updateContact(ContactEntity contact) async {
     try {
       final model = ContactModel(id: contact.id, name: contact.name, email: contact.email,
-        phone: contact.phone, company: contact.company, avatarUrl: contact.avatarUrl, createdAt: contact.createdAt);
+        phone: contact.phone, createdAt: contact.createdAt);
       return right((await _datasource.updateContact(model)).toEntity());
     } on Exception catch (e) {
       return left(ServerFailure(e.toString()));
