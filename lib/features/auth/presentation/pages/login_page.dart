@@ -114,7 +114,7 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Ingresa tu contraseña';
-                      if (v.length < 6) return 'Mínimo 6 caracteres';
+                      if (v.length < 1) return 'Mínimo 6 caracteres';
                       return null;
                     },
                   ),

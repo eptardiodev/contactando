@@ -114,25 +114,25 @@ class AppRouter {
   );
 
 
-  String? _authGuard(BuildContext context, GoRouterState state) {
-    return null;
-  }
- // TODO: esto es temporal hasta que se arregle el login
-
-  // /// Auth guard: redirige a login si no hay sesión, o al home si ya la hay.
   // String? _authGuard(BuildContext context, GoRouterState state) {
-  //   final session = Supabase.instance.client.auth.currentSession;
-  //   final isAuthenticated = session != null;
-  //
-  //   final isOnAuthRoute = state.matchedLocation == AppRoutes.login ||
-  //       state.matchedLocation == AppRoutes.register ||
-  //       state.matchedLocation == AppRoutes.forgotPassword ||
-  //       state.matchedLocation == AppRoutes.changePassword;
-  //
-  //   if (!isAuthenticated && !isOnAuthRoute) return AppRoutes.login;
-  //   if (isAuthenticated && isOnAuthRoute) return AppRoutes.dashboard;
   //   return null;
   // }
+ // TODO: esto es temporal hasta que se arregle el login
+
+  /// Auth guard: redirige a login si no hay sesión, o al home si ya la hay.
+  String? _authGuard(BuildContext context, GoRouterState state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final isAuthenticated = session != null;
+
+    final isOnAuthRoute = state.matchedLocation == AppRoutes.login ||
+        state.matchedLocation == AppRoutes.register ||
+        state.matchedLocation == AppRoutes.forgotPassword ||
+        state.matchedLocation == AppRoutes.changePassword;
+
+    if (!isAuthenticated && !isOnAuthRoute) return AppRoutes.login;
+    if (isAuthenticated && isOnAuthRoute) return AppRoutes.dashboard;
+    return null;
+  }
 }
 
 /// Notifica a GoRouter cuando cambia el estado de auth de Supabase.
