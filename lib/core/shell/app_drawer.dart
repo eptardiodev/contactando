@@ -1,4 +1,6 @@
+import 'package:contactando/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -92,9 +94,8 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Future<void> _logout(BuildContext context) async {
+  void _logout(BuildContext context) {
     Navigator.pop(context);
-    await Supabase.instance.client.auth.signOut();
-    if (context.mounted) context.goNamed(AppRoutes.loginName);
+    context.read<AuthBloc>().add(const AuthSignOutRequested());
   }
 }

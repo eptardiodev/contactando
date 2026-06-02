@@ -24,4 +24,7 @@ abstract interface class AuthRepository {
   bool get isAuthenticated;
 
   Stream<UserEntity?> get authStateChanges;
+  Future<void> saveLoginTimestamp();
+  bool isLoginWithin24Hours();
+  Future<void> clearLoginTimestamp();
 }

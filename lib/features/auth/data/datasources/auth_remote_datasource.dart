@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -21,12 +22,17 @@ abstract interface class AuthRemoteDatasource {
   Future<void> updatePassword(String newPassword);
   UserModel? get currentUser;
   Stream<UserModel?> get authStateChanges;
+
+  Future<void> saveLoginTimestamp();
+  bool isLoginWithin24Hours();
+  Future<void> clearLoginTimestamp();
 }
 
 @LazySingleton(as: AuthRemoteDatasource)
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
-  const AuthRemoteDatasourceImpl(this._client);
+  const AuthRemoteDatasourceImpl(this._client, this._prefs);
   final SupabaseClient _client;
+  final SharedPreferences _prefs;
 
   @override
   Future<UserModel> signInWithEmailPassword({
@@ -124,4 +130,27 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
             ? UserModel.fromSupabaseUser(event.session!.user)
             : null,
       );
+
+  static const _loginTimestampKey = 'last_login_timestamp';
+
+  @override
+  Future<void> saveLoginTimestamp() async {
+    await _prefs.setInt(
+      _loginTimestampKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  @override
+  bool isLoginWithin24Hours() {
+    final ts = _prefs.getInt(_loginTimestampKey);
+    if (ts == null) return false;
+    final loginTime = DateTime.fromMillisecondsSinceEpoch(ts);
+    return DateTime.now().difference(loginTime) < const Duration(hours: 24);
+  }
+
+  @override
+  Future<void> clearLoginTimestamp() async {
+    await _prefs.remove(_loginTimestampKey);
+  }
 }

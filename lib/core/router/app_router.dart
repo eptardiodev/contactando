@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -12,6 +13,7 @@ import '../../features/contacts/presentation/pages/contacts_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../di/injection.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
 
@@ -122,7 +124,16 @@ class AppRouter {
   /// Auth guard: redirige a login si no hay sesión, o al home si ya la hay.
   String? _authGuard(BuildContext context, GoRouterState state) {
     final session = Supabase.instance.client.auth.currentSession;
-    final isAuthenticated = session != null;
+    final isSupabaseAuthenticated = session != null;
+
+    final prefs = getIt<SharedPreferences>();
+    final ts = prefs.getInt('last_login_timestamp');
+    final isWithin24h = ts != null &&
+        DateTime.now().difference(
+          DateTime.fromMillisecondsSinceEpoch(ts),
+        ) < const Duration(hours: 24);
+
+    final isAuthenticated = isSupabaseAuthenticated || isWithin24h;
 
     final isOnAuthRoute = state.matchedLocation == AppRoutes.login ||
         state.matchedLocation == AppRoutes.register ||

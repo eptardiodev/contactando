@@ -60,7 +60,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i873.ContactRepository>(
         () => _i929.ContactRepositoryImpl(gh<_i443.ContactRemoteDatasource>()));
     gh.lazySingleton<_i161.AuthRemoteDatasource>(
-        () => _i161.AuthRemoteDatasourceImpl(gh<_i454.SupabaseClient>()));
+        () => _i161.AuthRemoteDatasourceImpl(gh<_i454.SupabaseClient>(),gh<_i460.SharedPreferences>()));
     gh.singleton<_i819.SettingsCubit>(
         () => _i819.SettingsCubit(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i787.AuthRepository>(
@@ -76,7 +76,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           signIn: gh<_i259.SignInUseCase>(),
           signOut: gh<_i915.SignOutUseCase>(),
-        ));
+          authRepository: gh<_i787.AuthRepository>(),
+    ));
     return this;
   }
 }

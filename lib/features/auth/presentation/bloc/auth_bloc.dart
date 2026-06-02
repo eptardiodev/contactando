@@ -1,4 +1,5 @@
 import 'package:contactando/core/utils/use_case.dart';
+import 'package:contactando/features/auth/domain/repositories/auth_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -15,16 +16,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required SignInUseCase signIn,
     required SignOutUseCase signOut,
+    required AuthRepository authRepository,
   })  : _signIn = signIn,
         _signOut = signOut,
+        _authRepository = authRepository,
         super(const AuthInitial()) {
     on<AuthSignInRequested>(_onSignIn);
     on<AuthSignOutRequested>(_onSignOut);
-    on<AuthCheckRequested>(_onCheckAuth);
   }
 
   final SignInUseCase _signIn;
   final SignOutUseCase _signOut;
+  final AuthRepository _authRepository;
 
   Future<void> _onSignIn(
     AuthSignInRequested event,
@@ -34,10 +37,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _signIn(
       LoginParam(email: event.email, password: event.password)
     );
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(AuthAuthenticated(user)),
-    );
+
+    if (result.isLeft()) {
+      final failure = result.getLeft().toNullable()!;
+      emit(AuthError(failure.message));
+    } else {
+      final user = result.getRight().toNullable()!;
+      await _authRepository.saveLoginTimestamp();
+      emit(AuthAuthenticated(user));
+    }
   }
 
   Future<void> _onSignOut(
@@ -48,17 +56,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _signOut(
       NoParams()
     );
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (_) => emit(const AuthUnauthenticated()),
-    );
+
+    if (result.isLeft()) {
+      final failure = result.getLeft().toNullable()!;
+      emit(AuthError(failure.message));
+    } else {
+      await _authRepository.clearLoginTimestamp();
+      emit(const AuthUnauthenticated());
+    }
   }
 
-  Future<void> _onCheckAuth(
-    AuthCheckRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    // GoRouter maneja esto vía el auth guard, pero útil para uso explícito
-    emit(const AuthUnauthenticated());
-  }
 }

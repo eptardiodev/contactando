@@ -1,6 +1,9 @@
+import 'package:contactando/core/di/injection.dart';
+import 'package:contactando/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 import '../router/app_routes.dart';
 import 'app_drawer.dart';
@@ -22,44 +25,54 @@ class AppShell extends StatelessWidget {
     final user = Supabase.instance.client.auth.currentUser;
     final initials = _getInitials(user?.email ?? 'U');
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_tabTitle(navigationShell.currentIndex)),
-        actions: [
-          // Botón de perfil en el AppBar
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () => context.pushNamed(AppRoutes.profileName),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Text(
-                  initials,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+    return BlocProvider(
+      create: (_) => getIt<AuthBloc>(),
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            context.goNamed(AppRoutes.loginName);
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(_tabTitle(navigationShell.currentIndex)),
+            actions: [
+              // Botón de perfil en el AppBar
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  onTap: () => context.pushNamed(AppRoutes.profileName),
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Text(
+                      initials,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-      drawer: const AppDrawer(),
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onTabTapped,
-        destinations: _tabs
-            .map(
-              (t) => NavigationDestination(
-                icon: Icon(t.icon),
-                label: t.label,
-              ),
-            )
-            .toList(),
+          drawer: const AppDrawer(),
+          body: navigationShell,
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: _onTabTapped,
+            destinations: _tabs
+                .map(
+                  (t) => NavigationDestination(
+                    icon: Icon(t.icon),
+                    label: t.label,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }

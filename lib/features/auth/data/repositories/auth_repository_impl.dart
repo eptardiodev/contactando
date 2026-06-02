@@ -94,4 +94,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<UserEntity?> get authStateChanges => _datasource.authStateChanges;
+
+  @override
+  Future<void> saveLoginTimestamp() => _datasource.saveLoginTimestamp();
+
+  @override
+  bool isLoginWithin24Hours() => _datasource.isLoginWithin24Hours();
+
+  @override
+  Future<void> clearLoginTimestamp() => _datasource.clearLoginTimestamp();
 }
