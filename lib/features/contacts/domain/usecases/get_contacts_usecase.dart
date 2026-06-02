@@ -12,5 +12,5 @@ class GetContactsUseCase extends UseCase<List<ContactEntity>, NoParams> {
 
   @override
   Future<Either<Failure, List<ContactEntity>>> call(NoParams params) =>
-      _repository.getContacts();
+      _repository.getContacts("e4558909-4e7c-43bd-b08a-14205bf78e23");
 }

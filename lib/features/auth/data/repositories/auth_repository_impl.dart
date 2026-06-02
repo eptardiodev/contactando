@@ -1,8 +1,7 @@
-
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -24,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       return right(user);
-    } on AuthException catch (e) {
+    } on AppAuthException catch (e) {
       return left(AuthFailure(e.message));
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -44,7 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
         fullName: fullName,
       );
       return right(user);
-    } on AuthException catch (e) {
+    } on AppAuthException catch (e) {
       return left(AuthFailure(e.message));
     } catch (e) {
       return left(ServerFailure(e.toString()));
@@ -56,8 +55,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _datasource.signOut();
       return right(unit);
-    } on AuthException catch (e) {
+    } on AppAuthException catch (e) {
       return left(AuthFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
     }
   }
 
@@ -66,8 +67,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _datasource.sendPasswordResetEmail(email);
       return right(unit);
-    } on AuthException catch (e) {
+    } on AppAuthException catch (e) {
       return left(AuthFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
     }
   }
 
@@ -76,8 +79,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _datasource.updatePassword(newPassword);
       return right(unit);
-    } on AuthException catch (e) {
+    } on AppAuthException catch (e) {
       return left(AuthFailure(e.message));
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
     }
   }
 

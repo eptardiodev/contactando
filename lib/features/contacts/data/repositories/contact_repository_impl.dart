@@ -12,9 +12,9 @@ class ContactRepositoryImpl implements ContactRepository {
   final ContactRemoteDatasource _datasource;
 
   @override
-  Future<Either<Failure, List<ContactEntity>>> getContacts() async {
+  Future<Either<Failure, List<ContactEntity>>> getContacts(String userId) async {
     try {
-      final models = await _datasource.getContacts();
+      final models = await _datasource.getContacts(userId);
       return right(models.map((m) => m.toEntity()).toList());
     } on Exception catch (e) {
       return left(ServerFailure(e.toString()));

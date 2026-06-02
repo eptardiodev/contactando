@@ -1,3 +1,4 @@
+import 'package:contactando/core/utils/use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -30,7 +31,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await _signIn(email: event.email, password: event.password);
+    final result = await _signIn(
+      LoginParam(email: event.email, password: event.password)
+    );
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (user) => emit(AuthAuthenticated(user)),
@@ -42,7 +45,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await _signOut();
+    final result = await _signOut(
+      NoParams()
+    );
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(const AuthUnauthenticated()),

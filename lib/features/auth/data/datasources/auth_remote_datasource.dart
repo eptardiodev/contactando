@@ -1,10 +1,8 @@
-
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import '../models/user_model.dart';
-
 
 abstract interface class AuthRemoteDatasource {
   Future<UserModel> signInWithEmailPassword({
@@ -40,12 +38,18 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         email: email,
         password: password,
       );
-      if (response.user == null) throw const AuthException('Usuario no encontrado');
+      if (response.user == null) {
+        throw const AppAuthException('Usuario no encontrado');
+      }
       return UserModel.fromSupabaseUser(response.user!);
     } on AppAuthException {
+      // Ya es nuestra excepción, se propaga tal cual
       rethrow;
+    } on AuthException catch (e) {
+      // Excepción de Supabase → convertir a la nuestra
+      throw AppAuthException(e.message);
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AppAuthException(e.toString());
     }
   }
 
@@ -61,12 +65,16 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         password: password,
         data: fullName != null ? {'full_name': fullName} : null,
       );
-      if (response.user == null) throw const AuthException('Error al registrar usuario');
+      if (response.user == null) {
+        throw const AppAuthException('Error al registrar usuario');
+      }
       return UserModel.fromSupabaseUser(response.user!);
     } on AppAuthException {
       rethrow;
+    } on AuthException catch (e) {
+      throw AppAuthException(e.message);
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AppAuthException(e.toString());
     }
   }
 
@@ -74,8 +82,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   Future<void> signOut() async {
     try {
       await _client.auth.signOut();
+    } on AuthException catch (e) {
+      throw AppAuthException(e.message);
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AppAuthException(e.toString());
     }
   }
 
@@ -83,8 +93,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _client.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw AppAuthException(e.message);
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AppAuthException(e.toString());
     }
   }
 
@@ -92,8 +104,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   Future<void> updatePassword(String newPassword) async {
     try {
       await _client.auth.updateUser(UserAttributes(password: newPassword));
+    } on AuthException catch (e) {
+      throw AppAuthException(e.message);
     } catch (e) {
-      throw AuthException(e.toString());
+      throw AppAuthException(e.toString());
     }
   }
 

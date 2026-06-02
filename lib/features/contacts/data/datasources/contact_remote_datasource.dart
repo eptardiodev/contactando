@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/contact_model.dart';
 
 abstract interface class ContactRemoteDatasource {
-  Future<List<ContactModel>> getContacts();
+  Future<List<ContactModel>> getContacts(String userId);
   Future<ContactModel> getContactById(String id);
   Future<ContactModel> createContact(ContactModel contact);
   Future<ContactModel> updateContact(ContactModel contact);
@@ -17,8 +17,15 @@ class SupabaseContactDatasource implements ContactRemoteDatasource {
   static const _table = 'contacts';
 
   @override
-  Future<List<ContactModel>> getContacts() async {
-    final data = await _supabase.from(_table).select().order('name');
+  Future<List<ContactModel>> getContacts(String userId) async {
+    final data = await _supabase
+      .from(_table)
+      .select()
+      .eq("ownerUserId", userId)
+      .eq("isContactRole", false)
+      .eq("active", true)
+      .maybeSingle();
+
     return (data as List).map((e) => ContactModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 

@@ -82,10 +82,14 @@ class AppShell extends StatelessWidget {
   }
 
   String _getInitials(String email) {
+    if (email.isEmpty) return '?';
     final parts = email.split('@').first.split('.');
-    if (parts.length >= 2) {
+    if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return email.substring(0, 2).toUpperCase();
+    final local = email.split('@').first;
+    if (local.length >= 2) return local.substring(0, 2).toUpperCase();
+    if (local.length == 1) return local[0].toUpperCase();
+    return '?';
   }
 }

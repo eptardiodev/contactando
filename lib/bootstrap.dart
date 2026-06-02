@@ -1,36 +1,22 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/di/injection.dart';
+import 'core/utils/app_bloc_observer.dart';
+import 'core/utils/app_logger.dart';
 import 'app.dart';
-
-/// BlocObserver para logging en dev.
-class AppBlocObserver extends BlocObserver {
-  const AppBlocObserver();
-
-  @override
-  void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {
-    super.onChange(bloc, change);
-    debugPrint('${bloc.runtimeType} $change');
-  }
-
-  @override
-  void onError(BlocBase<dynamic> bloc, Object error, StackTrace stackTrace) {
-    debugPrint('${bloc.runtimeType} $error');
-    super.onError(bloc, error, stackTrace);
-  }
-}
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Bloc observer (solo en dev)
-  if (AppConstants.isDev) {
-    Bloc.observer = const AppBlocObserver();
-  }
+  // Logger (debe inicializarse primero, AppBlocObserver lo usa)
+  AppLogger.init(isDev: AppConstants.isDev);
+
+  // BLoC observer — usa AppBlocObserver de core/utils/, no una clase inline
+  Bloc.observer = const AppBlocObserver();
 
   // Supabase
   await Supabase.initialize(

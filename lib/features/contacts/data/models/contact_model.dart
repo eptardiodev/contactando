@@ -1,10 +1,6 @@
 import '../../domain/entities/contact_entity.dart';
 
 class ContactModel {
-  const ContactModel({
-    required this.id, required this.name, required this.email,
-    this.phone, this.company, this.avatarUrl, required this.createdAt,
-  });
   final String id;
   final String name;
   final String email;
@@ -12,6 +8,11 @@ class ContactModel {
   final String? company;
   final String? avatarUrl;
   final DateTime createdAt;
+
+  const ContactModel({
+    required this.id, required this.name, required this.email,
+    this.phone, this.company, this.avatarUrl, required this.createdAt,
+  });
 
   factory ContactModel.fromJson(Map<String, dynamic> json) => ContactModel(
     id: json['id'] as String, name: json['name'] as String,
@@ -21,7 +22,9 @@ class ContactModel {
   );
 
   Map<String, dynamic> toJson() => {
-    'id': id, 'name': name, 'email': email,
+    'id': id,
+    'name': name,
+    'email': email,
     if (phone != null) 'phone': phone,
     if (company != null) 'company': company,
     if (avatarUrl != null) 'avatar_url': avatarUrl,
@@ -29,7 +32,12 @@ class ContactModel {
   };
 
   ContactEntity toEntity() => ContactEntity(
-    id: id, name: name, email: email, phone: phone,
-    company: company, avatarUrl: avatarUrl, createdAt: createdAt,
+    id: id,
+    name: name,
+    email: email,
+    phone: phone,
+    company: company,
+    avatarUrl: avatarUrl,
+    createdAt: createdAt,
   );
 }
