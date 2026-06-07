@@ -59,16 +59,19 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i443.SupabaseContactDatasource(gh<_i454.SupabaseClient>()));
     gh.factory<_i873.ContactRepository>(
         () => _i929.ContactRepositoryImpl(gh<_i443.ContactRemoteDatasource>()));
-    gh.lazySingleton<_i161.AuthRemoteDatasource>(
-        () => _i161.AuthRemoteDatasourceImpl(gh<_i454.SupabaseClient>(),gh<_i460.SharedPreferences>()));
     gh.singleton<_i819.SettingsCubit>(
         () => _i819.SettingsCubit(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i787.AuthRepository>(
-        () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDatasource>()));
     gh.factory<_i1050.GetContactsUseCase>(
         () => _i1050.GetContactsUseCase(gh<_i873.ContactRepository>()));
     gh.factory<_i295.ContactsBloc>(
         () => _i295.ContactsBloc(gh<_i1050.GetContactsUseCase>()));
+    gh.lazySingleton<_i161.AuthRemoteDatasource>(
+        () => _i161.AuthRemoteDatasourceImpl(
+              gh<_i454.SupabaseClient>(),
+              gh<_i460.SharedPreferences>(),
+            ));
+    gh.lazySingleton<_i787.AuthRepository>(
+        () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDatasource>()));
     gh.factory<_i259.SignInUseCase>(
         () => _i259.SignInUseCase(gh<_i787.AuthRepository>()));
     gh.factory<_i915.SignOutUseCase>(
@@ -77,7 +80,7 @@ extension GetItInjectableX on _i174.GetIt {
           signIn: gh<_i259.SignInUseCase>(),
           signOut: gh<_i915.SignOutUseCase>(),
           authRepository: gh<_i787.AuthRepository>(),
-    ));
+        ));
     return this;
   }
 }
