@@ -1,3 +1,4 @@
+import 'package:contactando/core/constants/remote_constants.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -69,7 +70,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final response = await _client.auth.signUp(
         email: email,
         password: password,
-        data: fullName != null ? {'full_name': fullName} : null,
+        data: fullName != null ? {RC.fullName: fullName} : null,
       );
       if (response.user == null) {
         throw const AppAuthException('Error al registrar usuario');

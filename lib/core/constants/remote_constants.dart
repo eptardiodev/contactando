@@ -1,7 +1,7 @@
-/// Nombres de tablas y columnas de Supabase.
-/// Usar siempre estas constantes en los datasources en lugar de strings literales,
-/// para evitar typos y facilitar refactors.
-class RC {   /// Remote Constants
+/// Nombres de tablas, columnas y claves usadas en Supabase y modelos de datos.
+/// Usar siempre estas constantes en datasources y models en lugar de strings
+/// literales, para evitar typos y facilitar refactors.
+class RC {
   RC._();
 
   // ── HTTP status codes ──────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ class RC {   /// Remote Constants
   static const String softwareCausedConnectionAbort =
       'Software caused connection abort';
 
-  // ── Columnas comunes ───────────────────────────────────────────────────────
+  // ── Columnas comunes (compartidas por varias tablas) ───────────────────────
   static const String id = 'id';
   static const String createdAt = 'created_at';
   static const String active = 'active';
@@ -121,4 +121,13 @@ class RC {   /// Remote Constants
   static const String address= 'address';
   static const String country= 'country';
   static const String created_at= 'created_at';
+
+  // ── Supabase Auth user metadata ────────────────────────────────────────────
+  // Claves usadas en user.userMetadata y toJson() de UserModel
+  static const String fullName = 'full_name';
+  static const String avatarUrl = 'avatar_url';
+
+  // ── SharedPreferences keys (Settings) ─────────────────────────────────────
+  static const String prefKeyTheme = 'settings_theme';
+  static const String prefKeyLocale = 'settings_locale';
 }
