@@ -1,5 +1,10 @@
 import 'bootstrap.dart';
 
 /// Entry point DEV
-/// Run: flutter run --dart-define=FLAVOR=dev --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=xxx
+///
+/// Correr con:
+///   flutter run --target lib/main_dev.dart --dart-define-from-file=.env.dev.json
+///
+/// O simplemente:
+///   make run-dev
 void main() => bootstrap();

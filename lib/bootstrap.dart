@@ -12,20 +12,30 @@ import 'app.dart';
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Logger (debe inicializarse primero, AppBlocObserver lo usa)
+  // 1. Logger (debe inicializarse primero, AppBlocObserver lo usa)
   AppLogger.init(isDev: AppConstants.isDev);
 
-  // BLoC observer — usa AppBlocObserver de core/utils/, no una clase inline
+  // 2. Validar que las variables de entorno están presentes
+  //    Si no se usó --dart-define-from-file, falla en tiempo de arranque
+  //    y no en algún crash críptico más adelante.
+  AppConstants.validate();
+
+  // 3. BLoC observer
   Bloc.observer = const AppBlocObserver();
 
-  // Supabase
+  // 4. Supabase
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
     anonKey: AppConstants.supabaseAnonKey,
     debug: AppConstants.isDev,
   );
 
-  // Inyección de dependencias
+  AppLogger.i(
+    '[Bootstrap] Flavor: ${AppConstants.flavor} | '
+    'Supabase: ${AppConstants.supabaseUrl}',
+  );
+
+  // 5. Inyección de dependencias
   await configureDependencies();
 
   runApp(const App());
