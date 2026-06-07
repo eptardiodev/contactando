@@ -79,6 +79,22 @@ class AppDrawer extends StatelessWidget {
                 context.goNamed(AppRoutes.contactsName);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Transacciones'),
+              onTap: () {
+                Navigator.pop(context);
+                context.goNamed(AppRoutes.transactionsName);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Ajustes'),
+              onTap: () {
+                Navigator.pop(context);
+                context.goNamed(AppRoutes.settingsName);
+              },
+            ),
             const Spacer(),
             const Divider(),
             // Logout
