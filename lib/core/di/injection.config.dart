@@ -31,6 +31,14 @@ import '../../features/contacts/domain/repositories/contact_repository.dart'
 import '../../features/contacts/domain/usecases/get_contacts_usecase.dart'
     as _i1050;
 import '../../features/contacts/presentation/bloc/contacts_bloc.dart' as _i295;
+import '../../features/profile/data/datasources/profile_remote_datasource.dart'
+    as _i327;
+import '../../features/profile/data/repositories/profile_remote_impl.dart'
+    as _i851;
+import '../../features/profile/domain/repositories/profile_repository.dart'
+    as _i894;
+import '../../features/profile/domain/usecases/profile_usecases.dart' as _i591;
+import '../../features/profile/presentation/bloc/profile_bloc.dart' as _i469;
 import '../../features/settings/presentation/bloc/settings_cubit.dart' as _i819;
 import '../router/app_router.dart' as _i81;
 import 'modules/supabase_module.dart' as _i388;
@@ -55,10 +63,22 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i81.AppRouter>(() => _i81.AppRouter());
     gh.lazySingleton<_i454.SupabaseClient>(() => supabaseModule.supabaseClient);
+    gh.lazySingleton<_i327.ProfileRemoteDatasource>(
+        () => _i327.SupabaseProfileDatasource(gh<_i454.SupabaseClient>()));
+    gh.lazySingleton<_i894.ProfileRepository>(
+        () => _i851.ProfileRepositoryImpl(gh<_i327.ProfileRemoteDatasource>()));
     gh.factory<_i443.ContactRemoteDatasource>(
         () => _i443.SupabaseContactDatasource(gh<_i454.SupabaseClient>()));
     gh.factory<_i873.ContactRepository>(
         () => _i929.ContactRepositoryImpl(gh<_i443.ContactRemoteDatasource>()));
+    gh.factory<_i591.GetProfileUseCase>(
+        () => _i591.GetProfileUseCase(gh<_i894.ProfileRepository>()));
+    gh.factory<_i591.UpdateProfileUseCase>(
+        () => _i591.UpdateProfileUseCase(gh<_i894.ProfileRepository>()));
+    gh.factory<_i469.ProfileBloc>(() => _i469.ProfileBloc(
+          getProfile: gh<_i591.GetProfileUseCase>(),
+          updateProfile: gh<_i591.UpdateProfileUseCase>(),
+        ));
     gh.singleton<_i819.SettingsCubit>(
         () => _i819.SettingsCubit(gh<_i460.SharedPreferences>()));
     gh.factory<_i1050.GetContactsUseCase>(
