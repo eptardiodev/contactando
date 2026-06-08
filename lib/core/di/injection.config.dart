@@ -28,17 +28,30 @@ import '../../features/contacts/data/repositories/contact_repository_impl.dart'
     as _i929;
 import '../../features/contacts/domain/repositories/contact_repository.dart'
     as _i873;
+import '../../features/contacts/domain/usecases/contact_usecases.dart' as _i96;
 import '../../features/contacts/domain/usecases/get_contacts_usecase.dart'
     as _i1050;
+import '../../features/contacts/presentation/bloc/contact_detail_bloc.dart'
+    as _i432;
 import '../../features/contacts/presentation/bloc/contacts_bloc.dart' as _i295;
 import '../../features/profile/data/datasources/profile_remote_datasource.dart'
     as _i327;
-import '../../features/profile/data/repositories/profile_remote_impl.dart'
-    as _i851;
+import '../../features/profile/data/repositories/profile_repository_impl.dart'
+    as _i334;
 import '../../features/profile/domain/repositories/profile_repository.dart'
     as _i894;
 import '../../features/profile/domain/usecases/profile_usecases.dart' as _i591;
 import '../../features/profile/presentation/bloc/profile_bloc.dart' as _i469;
+import '../../features/relationship_type/data/datasources/relationship_type_remote_datasource.dart'
+    as _i560;
+import '../../features/relationship_type/data/repositories/relationship_type_repository_impl.dart'
+    as _i970;
+import '../../features/relationship_type/domain/repositories/relationship_type_repository.dart'
+    as _i784;
+import '../../features/relationship_type/domain/usecases/relationship_type_usecases.dart'
+    as _i502;
+import '../../features/relationship_type/presentation/bloc/relationship_type_bloc.dart'
+    as _i1022;
 import '../../features/settings/presentation/bloc/settings_cubit.dart' as _i819;
 import '../router/app_router.dart' as _i81;
 import 'modules/supabase_module.dart' as _i388;
@@ -65,12 +78,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i454.SupabaseClient>(() => supabaseModule.supabaseClient);
     gh.lazySingleton<_i327.ProfileRemoteDatasource>(
         () => _i327.SupabaseProfileDatasource(gh<_i454.SupabaseClient>()));
+    gh.lazySingleton<_i560.RelationshipTypeRemoteDatasource>(() =>
+        _i560.SupabaseRelationshipTypeDatasource(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i894.ProfileRepository>(
-        () => _i851.ProfileRepositoryImpl(gh<_i327.ProfileRemoteDatasource>()));
+        () => _i334.ProfileRepositoryImpl(gh<_i327.ProfileRemoteDatasource>()));
     gh.factory<_i443.ContactRemoteDatasource>(
         () => _i443.SupabaseContactDatasource(gh<_i454.SupabaseClient>()));
     gh.factory<_i873.ContactRepository>(
         () => _i929.ContactRepositoryImpl(gh<_i443.ContactRemoteDatasource>()));
+    gh.lazySingleton<_i784.RelationshipTypeRepository>(() =>
+        _i970.RelationshipTypeRepositoryImpl(
+            gh<_i560.RelationshipTypeRemoteDatasource>()));
     gh.factory<_i591.GetProfileUseCase>(
         () => _i591.GetProfileUseCase(gh<_i894.ProfileRepository>()));
     gh.factory<_i591.UpdateProfileUseCase>(
@@ -81,15 +99,48 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.singleton<_i819.SettingsCubit>(
         () => _i819.SettingsCubit(gh<_i460.SharedPreferences>()));
+    gh.factory<_i96.GetContactsUseCase>(
+        () => _i96.GetContactsUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.GetContactByIdUseCase>(
+        () => _i96.GetContactByIdUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.SearchContactsUseCase>(
+        () => _i96.SearchContactsUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.CreateContactUseCase>(
+        () => _i96.CreateContactUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.UpdateContactUseCase>(
+        () => _i96.UpdateContactUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.DeleteContactUseCase>(
+        () => _i96.DeleteContactUseCase(gh<_i873.ContactRepository>()));
+    gh.factory<_i96.GetUniqueCountriesUseCase>(
+        () => _i96.GetUniqueCountriesUseCase(gh<_i873.ContactRepository>()));
     gh.factory<_i1050.GetContactsUseCase>(
         () => _i1050.GetContactsUseCase(gh<_i873.ContactRepository>()));
-    gh.factory<_i295.ContactsBloc>(
-        () => _i295.ContactsBloc(gh<_i1050.GetContactsUseCase>()));
+    gh.factory<_i295.ContactsBloc>(() => _i295.ContactsBloc(
+          getContacts: gh<_i96.GetContactsUseCase>(),
+          searchContacts: gh<_i96.SearchContactsUseCase>(),
+          createContact: gh<_i96.CreateContactUseCase>(),
+          updateContact: gh<_i96.UpdateContactUseCase>(),
+          deleteContact: gh<_i96.DeleteContactUseCase>(),
+          getUniqueCountries: gh<_i96.GetUniqueCountriesUseCase>(),
+        ));
     gh.lazySingleton<_i161.AuthRemoteDatasource>(
         () => _i161.AuthRemoteDatasourceImpl(
               gh<_i454.SupabaseClient>(),
               gh<_i460.SharedPreferences>(),
             ));
+    gh.factory<_i502.GetAllRelationshipTypesUseCase>(() =>
+        _i502.GetAllRelationshipTypesUseCase(
+            gh<_i784.RelationshipTypeRepository>()));
+    gh.factory<_i502.GetRelationshipTypeByIdUseCase>(() =>
+        _i502.GetRelationshipTypeByIdUseCase(
+            gh<_i784.RelationshipTypeRepository>()));
+    gh.lazySingleton<_i1022.RelationshipTypeBloc>(() =>
+        _i1022.RelationshipTypeBloc(
+            getAll: gh<_i502.GetAllRelationshipTypesUseCase>()));
+    gh.factory<_i432.ContactDetailBloc>(() => _i432.ContactDetailBloc(
+          updateContact: gh<_i96.UpdateContactUseCase>(),
+          deleteContact: gh<_i96.DeleteContactUseCase>(),
+        ));
     gh.lazySingleton<_i787.AuthRepository>(
         () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDatasource>()));
     gh.factory<_i259.SignInUseCase>(

@@ -4,15 +4,18 @@ import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/auth/presentation/pages/change_password_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/auth/presentation/pages/forgot_password_page.dart';
-import '../../features/auth/presentation/pages/change_password_page.dart';
-import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/contacts/domain/entities/contact_entity.dart';
+import '../../features/contacts/presentation/pages/add_contact_page.dart';
+import '../../features/contacts/presentation/pages/contact_detail_page.dart';
 import '../../features/contacts/presentation/pages/contacts_page.dart';
-import '../../features/transactions/presentation/pages/transactions_page.dart';
-import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../di/injection.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
@@ -27,7 +30,7 @@ class AppRouter {
     redirect: _authGuard,
     refreshListenable: _AuthStateNotifier(),
     routes: [
-      // ── Auth routes (sin shell) ──────────────────────────────────────
+      // ── Auth routes (sin shell) ──────────────────────────────────────────
       GoRoute(
         path: AppRoutes.login,
         name: AppRoutes.loginName,
@@ -49,10 +52,11 @@ class AppRouter {
         builder: (_, __) => const ChangePasswordPage(),
       ),
 
-      // ── Shell con tabs ───────────────────────────────────────────────
+      // ── Shell con tabs ───────────────────────────────────────────────────
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(navigationShell: shell),
         branches: [
+          // ── Dashboard ──────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -62,6 +66,8 @@ class AppRouter {
               ),
             ],
           ),
+
+          // ── Contacts ───────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -69,15 +75,24 @@ class AppRouter {
                 name: AppRoutes.contactsName,
                 builder: (_, __) => const ContactsPage(),
                 routes: [
+                  // /contacts/add  — debe ir ANTES que :id para no colisionar
+                  GoRoute(
+                    path: 'add',
+                    name: AppRoutes.contactAddName,
+                    builder: (_, __) => const AddContactPage(),
+                  ),
+                  // /contacts/:id
                   GoRoute(
                     path: ':id',
                     name: AppRoutes.contactDetailName,
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
-                      // Importar y retornar ContactDetailPage(id: id) cuando exista
-                      return Scaffold(
-                        appBar: AppBar(title: Text('Contacto $id')),
-                        body: const Center(child: Text('Detalle próximamente')),
+                      // El contacto completo llega via `extra` cuando se navega
+                      // desde la lista. Si extra es null la página lo carga por id.
+                      final contact = state.extra as ContactEntity?;
+                      return ContactDetailPage(
+                        contactId: id,
+                        contact: contact,
                       );
                     },
                   ),
@@ -85,6 +100,8 @@ class AppRouter {
               ),
             ],
           ),
+
+          // ── Transactions ───────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -94,6 +111,8 @@ class AppRouter {
               ),
             ],
           ),
+
+          // ── Settings ───────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -106,7 +125,7 @@ class AppRouter {
         ],
       ),
 
-      // ── Profile fuera del shell (desde AppBar) ───────────────────────
+      // ── Profile fuera del shell (navegación desde AppBar / Drawer) ────────
       GoRoute(
         path: AppRoutes.profile,
         name: AppRoutes.profileName,
@@ -115,13 +134,8 @@ class AppRouter {
     ],
   );
 
+  // ── Auth Guard ─────────────────────────────────────────────────────────────
 
-  // String? _authGuard(BuildContext context, GoRouterState state) {
-  //   return null;
-  // }
- // TODO: esto es temporal hasta que se arregle el login
-
-  /// Auth guard: redirige a login si no hay sesión, o al home si ya la hay.
   String? _authGuard(BuildContext context, GoRouterState state) {
     final session = Supabase.instance.client.auth.currentSession;
     final isSupabaseAuthenticated = session != null;
@@ -131,7 +145,8 @@ class AppRouter {
     final isWithin24h = ts != null &&
         DateTime.now().difference(
           DateTime.fromMillisecondsSinceEpoch(ts),
-        ) < const Duration(hours: 24);
+        ) <
+            const Duration(hours: 24);
 
     final isAuthenticated = isSupabaseAuthenticated || isWithin24h;
 
@@ -145,6 +160,8 @@ class AppRouter {
     return null;
   }
 }
+
+// ── Auth State Notifier ───────────────────────────────────────────────────────
 
 /// Notifica a GoRouter cuando cambia el estado de auth de Supabase.
 class _AuthStateNotifier extends ChangeNotifier {

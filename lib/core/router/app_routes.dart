@@ -2,7 +2,8 @@
 class AppRoutes {
   AppRoutes._();
 
-  // Auth
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
   static const String login = '/login';
   static const String loginName = 'login';
 
@@ -15,13 +16,19 @@ class AppRoutes {
   static const String changePassword = '/change-password';
   static const String changePasswordName = 'changePassword';
 
-  // Shell tabs
+  // ── Shell tabs ────────────────────────────────────────────────────────────
+
   static const String dashboard = '/dashboard';
   static const String dashboardName = 'dashboard';
 
   static const String contacts = '/contacts';
   static const String contactsName = 'contacts';
+
+  /// Ruta hija de contacts: /contacts/:id
   static const String contactDetailName = 'contactDetail';
+
+  /// Ruta hija de contacts: /contacts/add
+  static const String contactAddName = 'contactAdd';
 
   static const String transactions = '/transactions';
   static const String transactionsName = 'transactions';
@@ -29,7 +36,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String settingsName = 'settings';
 
-  // Fuera del shell
+  // ── Fuera del shell ───────────────────────────────────────────────────────
+
   static const String profile = '/profile';
   static const String profileName = 'profile';
 }
