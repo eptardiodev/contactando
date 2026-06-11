@@ -53,6 +53,16 @@ import '../../features/relationship_type/domain/usecases/relationship_type_useca
 import '../../features/relationship_type/presentation/bloc/relationship_type_bloc.dart'
     as _i1022;
 import '../../features/settings/presentation/bloc/settings_cubit.dart' as _i819;
+import '../../features/transactions/data/datasources/transaction_remote_datasource.dart'
+    as _i634;
+import '../../features/transactions/data/repositories/transaction_repository_impl.dart'
+    as _i443;
+import '../../features/transactions/domain/repositories/transaction_repository.dart'
+    as _i421;
+import '../../features/transactions/domain/usecases/transaction_usecases.dart'
+    as _i843;
+import '../../features/transactions/presentation/bloc/transactions_bloc.dart'
+    as _i439;
 import '../router/app_router.dart' as _i81;
 import 'modules/supabase_module.dart' as _i388;
 import 'register_module.dart' as _i291;
@@ -74,12 +84,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.sharedPreferences,
       preResolve: true,
     );
-    gh.singleton<_i81.AppRouter>(() => _i81.AppRouter());
     gh.lazySingleton<_i454.SupabaseClient>(() => supabaseModule.supabaseClient);
+    gh.lazySingleton<_i81.AppRouter>(() => _i81.AppRouter());
     gh.lazySingleton<_i327.ProfileRemoteDatasource>(
         () => _i327.SupabaseProfileDatasource(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i560.RelationshipTypeRemoteDatasource>(() =>
         _i560.SupabaseRelationshipTypeDatasource(gh<_i454.SupabaseClient>()));
+    gh.factory<_i634.TransactionRemoteDatasource>(
+        () => _i634.SupabaseTransactionDatasource(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i894.ProfileRepository>(
         () => _i334.ProfileRepositoryImpl(gh<_i327.ProfileRemoteDatasource>()));
     gh.factory<_i443.ContactRemoteDatasource>(
@@ -99,6 +111,9 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.singleton<_i819.SettingsCubit>(
         () => _i819.SettingsCubit(gh<_i460.SharedPreferences>()));
+    gh.factory<_i421.TransactionRepository>(() =>
+        _i443.TransactionRepositoryImpl(
+            gh<_i634.TransactionRemoteDatasource>()));
     gh.factory<_i96.GetContactsUseCase>(
         () => _i96.GetContactsUseCase(gh<_i873.ContactRepository>()));
     gh.factory<_i96.GetContactByIdUseCase>(
@@ -137,9 +152,25 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1022.RelationshipTypeBloc>(() =>
         _i1022.RelationshipTypeBloc(
             getAll: gh<_i502.GetAllRelationshipTypesUseCase>()));
+    gh.factory<_i843.GetTransactionsByUserUseCase>(() =>
+        _i843.GetTransactionsByUserUseCase(gh<_i421.TransactionRepository>()));
+    gh.factory<_i843.GetTransactionByIdUseCase>(() =>
+        _i843.GetTransactionByIdUseCase(gh<_i421.TransactionRepository>()));
+    gh.factory<_i843.CreateTransactionUseCase>(() =>
+        _i843.CreateTransactionUseCase(gh<_i421.TransactionRepository>()));
+    gh.factory<_i843.UpdateTransactionUseCase>(() =>
+        _i843.UpdateTransactionUseCase(gh<_i421.TransactionRepository>()));
+    gh.factory<_i843.DeleteTransactionUseCase>(() =>
+        _i843.DeleteTransactionUseCase(gh<_i421.TransactionRepository>()));
     gh.factory<_i432.ContactDetailBloc>(() => _i432.ContactDetailBloc(
           updateContact: gh<_i96.UpdateContactUseCase>(),
           deleteContact: gh<_i96.DeleteContactUseCase>(),
+        ));
+    gh.factory<_i439.TransactionsBloc>(() => _i439.TransactionsBloc(
+          getTransactionsByUser: gh<_i843.GetTransactionsByUserUseCase>(),
+          createTransaction: gh<_i843.CreateTransactionUseCase>(),
+          updateTransaction: gh<_i843.UpdateTransactionUseCase>(),
+          deleteTransaction: gh<_i843.DeleteTransactionUseCase>(),
         ));
     gh.lazySingleton<_i787.AuthRepository>(
         () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDatasource>()));

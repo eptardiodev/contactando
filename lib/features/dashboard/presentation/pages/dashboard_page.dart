@@ -10,11 +10,11 @@ class DashboardPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.dashboard_outlined, size: 48, color: Colors.grey),
-          SizedBox(height: 12),
-          Text('Dashboard', style: TextStyle(color: Colors.grey)),
-          Text('Migrar tu DashboardScreen aquí',
-              style: TextStyle(color: Colors.grey, fontSize: 12)),
+          // Icon(Icons.dashboard_outlined, size: 48, color: Colors.grey),
+          // SizedBox(height: 12),
+          // Text('Dashboard', style: TextStyle(color: Colors.grey)),
+          // Text('Migrar tu DashboardScreen aquí',
+          //     style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );

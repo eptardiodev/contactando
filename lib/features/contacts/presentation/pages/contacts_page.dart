@@ -2,21 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../domain/entities/contact_entity.dart';
 import '../bloc/contacts_bloc.dart';
 
-/// Provee el BLoC y dispara la carga inicial.
 class ContactsPage extends StatelessWidget {
   const ContactsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ContactsBloc>()..add(const ContactsLoadRequested()),
-      child: const _ContactsView(),
-    );
+    return const _ContactsView();
   }
 }
 
@@ -31,6 +26,22 @@ class _ContactsView extends StatefulWidget {
 
 class _ContactsViewState extends State<_ContactsView> {
   final _searchController = TextEditingController();
+
+  // FIX #3: Usamos didChangeDependencies con un guard en vez de initState.
+  // initState se ejecuta antes de que el BuildContext tenga acceso al BlocProvider
+  // cuando el widget es reconstruido por GoRouter. didChangeDependencies se ejecuta
+  // después del primer build y cada vez que una dependencia del contexto cambia,
+  // garantizando que context.read<ContactsBloc>() ya está disponible.
+  bool _loadRequested = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_loadRequested) {
+      _loadRequested = true;
+      context.read<ContactsBloc>().add(const ContactsLoadRequested());
+    }
+  }
 
   @override
   void dispose() {
@@ -56,7 +67,7 @@ class _ContactsViewState extends State<_ContactsView> {
   Widget _buildBody() {
     return BlocConsumer<ContactsBloc, ContactsState>(
       listenWhen: (previous, current) =>
-          current is ContactsError && previous is! ContactsError,
+      current is ContactsError && previous is! ContactsError,
       listener: (context, state) {
         if (state is ContactsError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +79,7 @@ class _ContactsViewState extends State<_ContactsView> {
         }
       },
       builder: (context, state) {
-        if (state is ContactsLoading) {
+        if (state is ContactsLoading || state is ContactsInitial) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -81,17 +92,17 @@ class _ContactsViewState extends State<_ContactsView> {
             _buildSearchRow(),
             _buildResultsCount(contacts.length, isSearching),
             Expanded(
-              child: contacts.isEmpty && state is! ContactsLoading
+              child: contacts.isEmpty
                   ? _EmptyState(
-                      isSearching: _searchController.text.trim().isNotEmpty,
-                      onCreateFirst: _navigateToAddContact,
-                    )
+                isSearching: _searchController.text.trim().isNotEmpty,
+                onCreateFirst: _navigateToAddContact,
+              )
                   : ListView.builder(
-                      padding: const EdgeInsets.only(top: 4, bottom: 80),
-                      itemCount: contacts.length,
-                      itemBuilder: (context, index) =>
-                          _ContactCard(contact: contacts[index]),
-                    ),
+                padding: const EdgeInsets.only(top: 4, bottom: 80),
+                itemCount: contacts.length,
+                itemBuilder: (context, index) =>
+                    _ContactCard(contact: contacts[index]),
+              ),
             ),
           ],
         );
@@ -181,18 +192,18 @@ class _SearchField extends StatelessWidget {
           builder: (_, value, __) => value.text.isEmpty
               ? const SizedBox.shrink()
               : IconButton(
-                  icon: Icon(Icons.clear,
-                      size: 16, color: Colors.grey.shade400),
-                  onPressed: () {
-                    controller.clear();
-                    onCleared();
-                  },
-                ),
+            icon: Icon(Icons.clear,
+                size: 16, color: Colors.grey.shade400),
+            onPressed: () {
+              controller.clear();
+              onCleared();
+            },
+          ),
         ),
         filled: true,
         fillColor: Colors.grey.shade100,
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
@@ -269,7 +280,7 @@ class _ContactCard extends StatelessWidget {
       shadowColor: Colors.black12,
       child: ListTile(
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: _buildAvatar(),
         title: _buildTitle(),
         subtitle: _buildSubtitle(),

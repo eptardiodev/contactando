@@ -1,4 +1,7 @@
+import 'package:contactando/features/contacts/presentation/bloc/contacts_bloc.dart';
+import 'package:contactando/features/transactions/presentation/bloc/transactions_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +23,7 @@ import '../di/injection.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
 
-@singleton
+@lazySingleton
 class AppRouter {
   AppRouter();
 
@@ -28,9 +31,13 @@ class AppRouter {
     debugLogDiagnostics: true,
     initialLocation: AppRoutes.dashboard,
     redirect: _authGuard,
-    refreshListenable: _AuthStateNotifier(),
+    // FIX: El refreshListenable ya NO usa _AuthStateNotifier que escuchaba
+    // todos los eventos incluyendo initialSession. Ahora usamos un Listenable
+    // que solo notifica en signIn y signOut reales, nunca en initialSession.
+    // Esto evita el rebuild del StatefulShellRoute en cold start.
+    refreshListenable: _SignInSignOutNotifier(),
     routes: [
-      // ── Auth routes (sin shell) ──────────────────────────────────────────
+      // ── Auth routes ──────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.login,
         name: AppRoutes.loginName,
@@ -54,9 +61,20 @@ class AppRouter {
 
       // ── Shell con tabs ───────────────────────────────────────────────────
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => AppShell(navigationShell: shell),
+        // FIX: BloCs al nivel del shell builder, no dentro de cada GoRoute.
+        // El shell builder se ejecuta una sola vez cuando el shell se monta.
+        // Los BloCs viven mientras el shell vive — no se destruyen en cada
+        // navegación ni en refreshes del router.
+        builder: (context, state, shell) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => getIt<ContactsBloc>()),
+              BlocProvider(create: (_) => getIt<TransactionsBloc>()),
+            ],
+            child: AppShell(navigationShell: shell),
+          );
+        },
         branches: [
-          // ── Dashboard ──────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -66,8 +84,6 @@ class AppRouter {
               ),
             ],
           ),
-
-          // ── Contacts ───────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -75,20 +91,16 @@ class AppRouter {
                 name: AppRoutes.contactsName,
                 builder: (_, __) => const ContactsPage(),
                 routes: [
-                  // /contacts/add  — debe ir ANTES que :id para no colisionar
                   GoRoute(
                     path: 'add',
                     name: AppRoutes.contactAddName,
                     builder: (_, __) => const AddContactPage(),
                   ),
-                  // /contacts/:id
                   GoRoute(
                     path: ':id',
                     name: AppRoutes.contactDetailName,
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
-                      // El contacto completo llega via `extra` cuando se navega
-                      // desde la lista. Si extra es null la página lo carga por id.
                       final contact = state.extra as ContactEntity?;
                       return ContactDetailPage(
                         contactId: id,
@@ -100,8 +112,6 @@ class AppRouter {
               ),
             ],
           ),
-
-          // ── Transactions ───────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -111,8 +121,6 @@ class AppRouter {
               ),
             ],
           ),
-
-          // ── Settings ───────────────────────────────────────────────────
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -125,7 +133,6 @@ class AppRouter {
         ],
       ),
 
-      // ── Profile fuera del shell (navegación desde AppBar / Drawer) ────────
       GoRoute(
         path: AppRoutes.profile,
         name: AppRoutes.profileName,
@@ -135,7 +142,8 @@ class AppRouter {
   );
 
   // ── Auth Guard ─────────────────────────────────────────────────────────────
-
+  // FIX: Gracias al await en bootstrap(), cuando este guard corre por primera
+  // vez currentSession ya tiene el valor correcto. No hay race condition.
   String? _authGuard(BuildContext context, GoRouterState state) {
     final session = Supabase.instance.client.auth.currentSession;
     final isSupabaseAuthenticated = session != null;
@@ -161,13 +169,26 @@ class AppRouter {
   }
 }
 
-// ── Auth State Notifier ───────────────────────────────────────────────────────
-
-/// Notifica a GoRouter cuando cambia el estado de auth de Supabase.
-class _AuthStateNotifier extends ChangeNotifier {
-  _AuthStateNotifier() {
+// ── Sign In / Sign Out Notifier ───────────────────────────────────────────────
+//
+// Solo notifica a GoRouter cuando el usuario hace login o logout explícito.
+// Filtra initialSession (restauración de sesión al arrancar) y tokenRefreshed
+// (refresh silencioso del JWT) que no requieren que el router re-evalúe nada.
+class _SignInSignOutNotifier extends ChangeNotifier {
+  _SignInSignOutNotifier() {
     _subscription = Supabase.instance.client.auth.onAuthStateChange
-        .listen((_) => notifyListeners());
+        .listen((data) {
+      final event = data.event;
+      // Solo estos dos eventos requieren que el router redirija:
+      // signedIn  → usuario acaba de autenticarse → ir a dashboard
+      // signedOut → usuario cerró sesión          → ir a login
+      if (event == AuthChangeEvent.signedIn ||
+          event == AuthChangeEvent.signedOut) {
+        notifyListeners();
+      }
+      // initialSession, tokenRefreshed, userUpdated, passwordRecovery, etc.
+      // no necesitan redirigir al usuario a ningún lado.
+    });
   }
 
   late final dynamic _subscription;

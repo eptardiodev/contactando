@@ -42,8 +42,10 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  String get _currentUserId =>
-      Supabase.instance.client.auth.currentUser?.id ?? '';
+  // FIX #4: Devuelve null si Supabase aún no tiene sesión restaurada,
+  // en lugar de '' que causaba queries vacías silenciosas contra Supabase.
+  String? get _currentUserId =>
+      Supabase.instance.client.auth.currentUser?.id;
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
@@ -51,9 +53,18 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     ContactsLoadRequested event,
     Emitter<ContactsState> emit,
   ) async {
+    final userId = _currentUserId;
+    // FIX #4: Si no hay userId, no lanzamos una query con '' que devuelve 0
+    // resultados — emitimos error para que el usuario vea algo accionable
+    // y para que el retry en la UI funcione cuando la sesión esté lista.
+    if (userId == null || userId.isEmpty) {
+      emit(const ContactsError('Sesión no disponible. Vuelve a intentarlo.'));
+      return;
+    }
+
     emit(const ContactsLoading());
     final result = await _getContacts(
-      GetContactsParams(userId: _currentUserId),
+      GetContactsParams(userId: userId),
     );
     result.fold(
       (failure) => emit(ContactsError(failure.message)),
@@ -70,7 +81,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       return;
     }
 
-    // Mantener la lista actual mientras se busca para no mostrar pantalla vacía
+    final userId = _currentUserId;
+    if (userId == null || userId.isEmpty) {
+      emit(const ContactsError('Sesión no disponible. Vuelve a intentarlo.'));
+      return;
+    }
+
     final current = state is ContactsLoaded
         ? (state as ContactsLoaded).allContacts
         : <ContactEntity>[];
@@ -78,7 +94,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     emit(ContactsLoaded(current, searchQuery: event.query, isSearching: true));
 
     final result = await _searchContacts(
-      SearchContactsParams(userId: _currentUserId, query: event.query.trim()),
+      SearchContactsParams(userId: userId, query: event.query.trim()),
     );
     result.fold(
       (failure) => emit(ContactsError(failure.message)),
