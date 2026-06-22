@@ -27,25 +27,6 @@ android {
         multiDexEnabled = true
     }
 
-    // ── Flavors ──────────────────────────────────────────────────────────────
-    // Nota: con --dart-define-from-file los flavors de Gradle NO son
-    // necesarios para inyectar variables en Dart. Se definen aquí solo
-    // para diferenciar el applicationId y el nombre de la app en el launcher.
-    flavorDimensions += "environment"
-
-    productFlavors {
-        create("dev") {
-            dimension = "environment"
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-dev"
-            resValue("string", "app_name", "Contactando DEV")
-        }
-        create("prod") {
-            dimension = "environment"
-            resValue("string", "app_name", "Contactando")
-        }
-    }
-
     buildTypes {
         debug {
             isDebuggable = true

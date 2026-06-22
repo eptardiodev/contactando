@@ -13,22 +13,30 @@ class AppConstants {
 
   // ─── Flavor ───────────────────────────────────────────────────────────────
 
-  /// Inyectado via --dart-define=FLAVOR=dev|prod  (viene del JSON)
+  /// Inyectado via --dart-define=FLAVOR=dev|prod (opcional).
+  /// Si no se pasa nada, por defecto corre en modo dev (temporal, sin flavors).
   static const String flavor =
-      String.fromEnvironment('FLAVOR', defaultValue: '');
+      String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
   static bool get isDev => flavor == 'dev';
   static bool get isProd => flavor == 'prod';
 
   // ─── Supabase ─────────────────────────────────────────────────────────────
 
-  /// Inyectado via --dart-define=SUPABASE_URL=...  (viene del JSON)
-  static const String supabaseUrl =
-      String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  /// Inyectado via --dart-define=SUPABASE_URL=... (opcional).
+  /// Default = proyecto de dev (temporal, sin flavors).
+  static const String supabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://wrjlrhngdjifdntwqecb.supabase.co',
+  );
 
-  /// Inyectado via --dart-define=SUPABASE_ANON_KEY=...  (viene del JSON)
-  static const String supabaseAnonKey =
-      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  /// Inyectado via --dart-define=SUPABASE_ANON_KEY=... (opcional).
+  /// Default = anon key de dev (temporal, sin flavors).
+  static const String supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyamxyaG5nZGppZmRudHdxZWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMjY2NDUsImV4cCI6MjA3MzkwMjY0NX0.uRPHQbz9MPiKDiOGc1AcsoBAUUgC3rgoVZ6NjtbVY3Q',
+  );
 
   // ─── Validación ───────────────────────────────────────────────────────────
 
