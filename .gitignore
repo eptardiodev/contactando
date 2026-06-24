@@ -42,6 +42,16 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android / Gradle
+android/.gradle/
+android/local.properties
+android/app/build/
+android/app/.cxx/
+android/captures/
+android/.idea/
+android/*.iml
+android/app/*.iml
+
 # ─── SECRETOS — NUNCA commitear ──────────────────────────────────────────────
 # Los archivos reales con claves. El ejemplo SÍ se commitea.
 .env.dev.json
