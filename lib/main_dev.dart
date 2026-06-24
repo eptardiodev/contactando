@@ -1,4 +1,5 @@
 import 'bootstrap.dart';
+import 'core/constants/app_constants.dart';
 
 /// Entry point DEV
 ///
@@ -7,4 +8,4 @@ import 'bootstrap.dart';
 ///
 /// O simplemente:
 ///   make run-dev
-void main() => bootstrap();
+void main() => bootstrap(Flavor.dev);

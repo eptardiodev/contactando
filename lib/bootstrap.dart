@@ -9,10 +9,13 @@ import 'core/utils/app_bloc_observer.dart';
 import 'core/utils/app_logger.dart';
 import 'app.dart';
 
-Future<void> bootstrap() async {
+Future<void> bootstrap(Flavor flavor) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Logger
+  // 1. Flavor — ahora explícito, decidido por el entry point que se ejecutó.
+  AppConstants.initFlavor(flavor);
+
+  // 2. Logger
   AppLogger.init(isDev: AppConstants.isDev);
 
   // 2. Validar variables de entorno

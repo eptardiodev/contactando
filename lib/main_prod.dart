@@ -1,4 +1,5 @@
 import 'bootstrap.dart';
+import 'core/constants/app_constants.dart';
 
 /// Entry point PROD
 ///
@@ -13,4 +14,4 @@ import 'bootstrap.dart';
 ///
 /// O simplemente:
 ///   make build-apk | make build-aab | make build-ipa
-void main() => bootstrap();
+void main() => bootstrap(Flavor.prod);

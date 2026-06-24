@@ -3,5 +3,6 @@
 // Para producción usa: flutter run -t lib/main_prod.dart
 
 import 'bootstrap.dart';
+import 'core/constants/app_constants.dart';
 
-void main() => bootstrap();
+void main() => bootstrap(Flavor.dev);
