@@ -27,7 +27,7 @@ Future<void> bootstrap(Flavor flavor) async {
   // 4. Supabase
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
-    anonKey: AppConstants.supabaseAnonKey,
+    publishableKey: AppConstants.supabaseAnonKey,
     debug: AppConstants.isDev,
   );
 

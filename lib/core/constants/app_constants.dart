@@ -21,16 +21,10 @@ class AppConstants {
 
   // ─── Supabase (sin cambios, sigue viniendo de dart-define-from-file) ────
 
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://wrjlrhngdjifdntwqecb.supabase.co',
-  );
+  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyamxyaG5nZGppZmRudHdxZWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMjY2NDUsImV4cCI6MjA3MzkwMjY0NX0.uRPHQbz9MPiKDiOGc1AcsoBAUUgC3rgoVZ6NjtbVY3Q',
-  );
+  static const String supabaseAnonKey =
+  String.fromEnvironment('SUPABASE_ANON_KEY');
 
   // ─── Validación ───────────────────────────────────────────────────────────
 
@@ -38,20 +32,13 @@ class AppConstants {
     final errors = <String>[];
 
     if (supabaseUrl.isEmpty) {
-      errors.add('SUPABASE_URL no definido.');
-    }
-    if (!supabaseUrl.startsWith('https://')) {
+      errors.add('SUPABASE_URL no definido. ¿Olvidaste --dart-define-from-file?');
+    } else if (!supabaseUrl.startsWith('https://')) {
       errors.add('SUPABASE_URL debe empezar con https://');
     }
+
     if (supabaseAnonKey.isEmpty) {
-      errors.add('SUPABASE_ANON_KEY no definido.');
-    }
-    // Sanity check: en prod nunca debería quedar el default de dev.
-    if (isProd && supabaseUrl.contains('wrjlrhngdjifdntwqecb')) {
-      errors.add(
-        'Flavor=prod pero SUPABASE_URL sigue siendo el default de dev. '
-            '¿Olvidaste --dart-define-from-file=.env.prod.json?',
-      );
+      errors.add('SUPABASE_ANON_KEY no definido. ¿Olvidaste --dart-define-from-file?');
     }
 
     if (errors.isNotEmpty) {
