@@ -22,6 +22,7 @@ import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../di/injection.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
+import 'navigation_params.dart';
 
 @lazySingleton
 class AppRouter {
@@ -60,14 +61,15 @@ class AppRouter {
       ),
 
       // ── Shell con tabs ───────────────────────────────────────────────────
+      // Solo las 4 pantallas "ancla". Ninguna tiene rutas hijas anidadas aquí
+      // adentro: cualquier vista "profunda" vive afuera del shell (ver abajo)
+      // para que no herede el bottom nav.
       StatefulShellRoute.indexedStack(
-        // FIX: BloCs al nivel del shell builder, no dentro de cada GoRoute.
-        // El shell builder se ejecuta una sola vez cuando el shell se monta.
-        // Los BloCs viven mientras el shell vive — no se destruyen en cada
-        // navegación ni en refreshes del router.
         builder: (context, state, shell) {
           return MultiBlocProvider(
             providers: [
+              // Instancias "maestras": viven mientras el usuario navega
+              // entre tabs. Nunca se tocan desde las rutas secundaria.
               BlocProvider(create: (_) => getIt<ContactsBloc>()),
               BlocProvider(create: (_) => getIt<TransactionsBloc>()),
             ],
@@ -90,25 +92,6 @@ class AppRouter {
                 path: AppRoutes.contacts,
                 name: AppRoutes.contactsName,
                 builder: (_, __) => const ContactsPage(),
-                routes: [
-                  GoRoute(
-                    path: 'add',
-                    name: AppRoutes.contactAddName,
-                    builder: (_, __) => const AddContactPage(),
-                  ),
-                  GoRoute(
-                    path: ':id',
-                    name: AppRoutes.contactDetailName,
-                    builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      final contact = state.extra as ContactEntity?;
-                      return ContactDetailPage(
-                        contactId: id,
-                        contact: contact,
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -133,6 +116,65 @@ class AppRouter {
         ],
       ),
 
+      // ── Vistas secundaria ───────────────────────────────────────────────
+      // Top-level: hermanas del shell, no hijas. Se alcanzan con push/pushNamed,
+      // se cierran con pop, nunca muestran bottom nav.
+
+      GoRoute(
+        path: AppRoutes.contactAdd,
+        name: AppRoutes.contactAddName,
+        builder: (_, __) => const AddContactPage(),
+      ),
+
+      GoRoute(
+        path: '${AppRoutes.contactDetail}/:id',
+        name: AppRoutes.contactDetailName,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final contact = state.extra as ContactEntity?;
+          return ContactDetailPage(contactId: id, contact: contact);
+        },
+      ),
+
+      // GoRoute(
+      //   path: AppRoutes.contactsSecondary,
+      //   name: AppRoutes.contactsSecondaryName,
+      //   builder: (context, state) {
+      //     final params = state.extra as ContactsSecondaryParams?;
+      //     return BlocProvider(
+      //       // Instancia nueva, aislada del ContactsBloc del shell.
+      //       create: (_) => getIt<ContactsBloc>()
+      //         ..add(
+      //           LoadContacts(
+      //             relatedToContactId: params?.relatedToContactId,
+      //             searchQuery: params?.searchQuery,
+      //           ),
+      //         ),
+      //       child: const ContactsPage(),
+      //     );
+      //   },
+      // ),
+
+      // GoRoute(
+      //   path: AppRoutes.transactionsSecondary,
+      //   name: AppRoutes.transactionsSecondaryName,
+      //   builder: (context, state) {
+      //     final params = state.extra as TransactionsSecondaryParams?;
+      //     return BlocProvider(
+      //       // Instancia nueva, aislada del TransactionsBloc del shell.
+      //       create: (_) => getIt<TransactionsBloc>()
+      //         ..add(
+      //           LoadTransactions(
+      //             contactId: params?.contactId,
+      //             dateRange: params?.dateRange,
+      //           ),
+      //         ),
+      //       child: const TransactionsPage(),
+      //     );
+      //   },
+      // ),
+
+      // ── Fuera del shell ──────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.profile,
         name: AppRoutes.profileName,

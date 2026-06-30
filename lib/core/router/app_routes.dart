@@ -24,17 +24,33 @@ class AppRoutes {
   static const String contacts = '/contacts';
   static const String contactsName = 'contacts';
 
-  /// Ruta hija de contacts: /contacts/:id
-  static const String contactDetailName = 'contactDetail';
-
-  /// Ruta hija de contacts: /contacts/add
-  static const String contactAddName = 'contactAdd';
-
   static const String transactions = '/transactions';
   static const String transactionsName = 'transactions';
 
   static const String settings = '/settings';
   static const String settingsName = 'settings';
+
+  // ── Vistas secundaria (top-level, fuera del shell) ────────────────────────
+  // Viven apiladas sobre el shell, sin bottom nav. Se alcanzan con push/pushNamed
+  // desde cualquier punto de la app y se cierran con pop.
+
+  /// /contact-add — formulario de alta de contacto.
+  static const String contactAdd = '/contact-add';
+  static const String contactAddName = 'contactAdd';
+
+  /// /contact-detail/:id — detalle/edición de un contacto.
+  static const String contactDetail = '/contact-detail';
+  static const String contactDetailName = 'contactDetail';
+
+  /// /contacts-secondary — misma UI que [contacts], pero accesible secundaria
+  /// con un Bloc propio (no el del shell), opcionalmente filtrada.
+  static const String contactsSecondary = '/contacts-secondary';
+  static const String contactsSecondaryName = 'contactsSecondary';
+
+  /// /transactions-secondary — misma UI que [transactions], pero accesible
+  /// secundaria con un Bloc propio (no el del shell), opcionalmente filtrada.
+  static const String transactionsSecondary = '/transactions-secondary';
+  static const String transactionsSecondaryName = 'transactionsSecondary';
 
   // ── Fuera del shell ───────────────────────────────────────────────────────
 
